@@ -1,0 +1,288 @@
+{%- style -%}
+  .premium-slider-wrapper {
+    position: relative;
+    isolation: isolate; 
+    z-index: 1;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .premium-slider-header {
+    width: 100%;
+    text-align: center;
+    margin: 80px 0 15px 0;
+    padding: 0 15px;
+    box-sizing: border-box;
+    word-wrap: break-word;
+  }
+
+  @media (max-width: 480px) {
+    .premium-slider-header {
+        margin: 60px 0 0 0;
+        padding: 0 20px; 
+    }
+  }
+
+  .premium-slider {
+    position: relative;
+    width: 100%;
+    height: 80vh;
+    min-height: 500px;
+    max-height: 800px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: pan-y;
+    background: transparent;
+  }
+
+  .slider-stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .slider-image {
+    position: absolute;
+    width: 300px;
+    height: 400px;
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform, z-index, opacity;
+    pointer-events: auto;
+    cursor: pointer;
+    border-radius: 2.3px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 1;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .slider-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+
+  .slider-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10; 
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+
+  .slider-nav:hover {
+    background: #fff;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .slider-nav svg {
+    width: 20px;
+    height: 20px;
+    fill: #000;
+  }
+
+  .slider-nav--prev { left: 30px; }
+  .slider-nav--next { right: 30px; }
+
+  .slider-image[data-position="center"] { z-index: 5; transform: translateX(0) scale(1); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); opacity: 1; cursor: default; }
+  .slider-image[data-position="right-1"] { z-index: 4; transform: translateX(200px) scale(0.75); opacity: 1; }
+  .slider-image[data-position="right-2"] { z-index: 3; transform: translateX(380px) scale(0.7); opacity: 1; }
+  .slider-image[data-position="right-3"] { z-index: 2; transform: translateX(540px) scale(0.65); opacity: 1; }
+  .slider-image[data-position="right-4"] { z-index: 1; transform: translateX(680px) scale(0.6); opacity: 0.01; }
+  .slider-image[data-position="left-1"] { z-index: 4; transform: translateX(-200px) scale(0.75); opacity: 1; }
+  .slider-image[data-position="left-2"] { z-index: 3; transform: translateX(-380px) scale(0.7); opacity: 1; }
+  .slider-image[data-position="left-3"] { z-index: 2; transform: translateX(-540px) scale(0.65); opacity: 1; }
+  .slider-image[data-position="left-4"] { z-index: 1; transform: translateX(-680px) scale(0.6); opacity: 0.01; }
+  .slider-image[data-position*="hidden"] { z-index: 0; opacity: 0; pointer-events: none; }
+
+  @media (max-width: 768px) {
+    .premium-slider { height: 60vh; min-height: 400px; }
+    .slider-image { width: 240px; height: 320px; }
+    .slider-nav { width: 40px; height: 40px; }
+    .slider-nav--prev { left: 15px; }
+    .slider-nav--next { right: 15px; }
+    
+    .slider-image[data-position="right-1"] { transform: translateX(110px) scale(0.6); opacity: 0.7; }
+    .slider-image[data-position="left-1"] { transform: translateX(-110px) scale(0.6); opacity: 0.7; }
+    
+    .slider-image[data-position="right-2"], .slider-image[data-position="left-2"] { opacity: 0; pointer-events: none; }
+  }
+{%- endstyle -%}
+
+<div class="premium-slider-wrapper">
+  {%- if section.settings.heading != blank -%}
+    <div class="premium-slider-header">
+      <{{ section.settings.heading_tag }}>{{ section.settings.heading | escape }}</{{ section.settings.heading_tag }}>
+    </div>
+  {%- endif -%}
+
+  <div class="premium-slider" id="slider-{{ section.id }}">
+    <div class="slider-nav slider-nav--prev" id="prev-{{ section.id }}">
+      <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+    </div>
+    
+    <div class="slider-stage" id="slider-stage-{{ section.id }}">
+      {%- for block in section.blocks -%}
+        {%- if block.settings.image != blank -%}
+          <div class="slider-image" data-index="{{ forloop.index0 }}" data-position="hidden-left">
+            {{ block.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', width: 300, height: 400, class: 'slider-img-element', alt: block.settings.image.alt | escape }}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    <div class="slider-nav slider-nav--next" id="next-{{ section.id }}">
+      <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    'use strict';
+    const sectionId = '{{ section.id }}';
+    const slider = document.getElementById(`slider-${sectionId}`);
+    const stage = document.getElementById(`slider-stage-${sectionId}`);
+    const prevBtn = document.getElementById(`prev-${sectionId}`);
+    const nextBtn = document.getElementById(`next-${sectionId}`);
+    const images = stage ? stage.querySelectorAll('.slider-image') : [];
+    
+    if (!slider || !stage || images.length === 0) return;
+
+    let currentOffset = 0, targetOffset = 0, animationId = null;
+    let touchStartX = 0, touchEndX = 0;
+    const totalImages = images.length, spacing = 180, smoothness = 0.12, swipeThreshold = 50;
+
+    function getWrappedIndex(index) {
+      const visualIndex = index - Math.round(targetOffset / spacing);
+      let wrapped = ((visualIndex % totalImages) + totalImages) % totalImages;
+      if (wrapped > totalImages / 2) wrapped -= totalImages;
+      return wrapped;
+    }
+
+    function updateImagePositions() {
+      images.forEach((image, index) => {
+        const visualIndex = index - Math.round(currentOffset / spacing);
+        let wrappedIndex = ((visualIndex % totalImages) + totalImages) % totalImages;
+        if (wrappedIndex > totalImages / 2) wrappedIndex -= totalImages;
+        
+        let pos = 'hidden-left';
+        if (wrappedIndex === 0) pos = 'center';
+        else if (wrappedIndex === 1) pos = 'right-1';
+        else if (wrappedIndex === 2) pos = 'right-2';
+        else if (wrappedIndex === 3) pos = 'right-3';
+        else if (wrappedIndex === 4) pos = 'right-4';
+        else if (wrappedIndex === -1) pos = 'left-1';
+        else if (wrappedIndex === -2) pos = 'left-2';
+        else if (wrappedIndex === -3) pos = 'left-3';
+        else if (wrappedIndex === -4) pos = 'left-4';
+        else if (wrappedIndex > 4) pos = 'hidden-right';
+        image.dataset.position = pos;
+      });
+    }
+
+    function animate() {
+      const delta = targetOffset - currentOffset;
+      if (Math.abs(delta) < 0.1) {
+        currentOffset = targetOffset;
+        updateImagePositions();
+        animationId = null;
+        return;
+      }
+      currentOffset += delta * smoothness;
+      updateImagePositions();
+      animationId = requestAnimationFrame(animate);
+    }
+
+    function navigate(direction) {
+      targetOffset += (direction * spacing);
+      if (!animationId) animationId = requestAnimationFrame(animate);
+    }
+
+    images.forEach((image, index) => {
+      image.addEventListener('click', () => {
+        const distance = getWrappedIndex(index);
+        if (distance !== 0) navigate(distance);
+      });
+    });
+
+    prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navigate(-1); });
+    nextBtn.addEventListener('click', (e) => { e.stopPropagation(); navigate(1); });
+
+    slider.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    slider.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > swipeThreshold) navigate(diff > 0 ? 1 : -1);
+    }, {passive: true});
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') navigate(-1);
+      if (e.key === 'ArrowRight') navigate(1);
+    });
+
+    updateImagePositions();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Slider Lookbook",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Our Collection"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading Tag",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" },
+        { "value": "h4", "label": "H4" },
+        { "value": "h5", "label": "H5" },
+        { "value": "h6", "label": "H6" }
+      ],
+      "default": "h2"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [{ "type": "image_picker", "id": "image", "label": "Image" }]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Slider Lookbook",
+      "category": "Custom Cr.",
+      "blocks": [{ "type": "image" }, { "type": "image" }, { "type": "image" }, { "type": "image" }, { "type": "image" }]
+    }
+  ]
+}
+{% endschema %}
